@@ -6,3 +6,4 @@ transformers
 tiktoken
 ml-dtypes
 rich
+blobfile
