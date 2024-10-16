@@ -72,7 +72,7 @@ def main(input: str, weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath("1B-Inst
         logits, kvcache, _, _ = xfmr(xfmr_weights, model_params, tokens, cur_pos, freqs_cis[:seqlen], kvcache, attn_mask=attn_mask)
         next_token = mx.argmax(logits[:, -1], axis=-1, keepdims=True).astype(mx.int32)
         gen_tokens = next_token
-        rich.print(f"[{COLORS["lelv"]}]{tokenizer.decode([next_token.item()])}[/]", end='', flush=True)
+        rich.print(f"[{COLORS['lelv']}]{tokenizer.decode([next_token.item()])}[/{COLORS['lelv']}]", end='', flush=True)
         cur_pos = seqlen
         stop = mx.array([128001, 128008, 128009])
         sampler_cfg = SamplerConfig()
@@ -86,7 +86,7 @@ def main(input: str, weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath("1B-Inst
             gen_tokens = mx.concatenate((gen_tokens, next_token))
             decoded = tokenizer.decode(next_token.tolist()[0])
             if color != "nocolor":
-                rich.print(f"[{color}]{decoded}[/]", end='', flush=True)
+                rich.print(f"[{color}]{decoded}[/{color}]", end='', flush=True)
             else:
                 print(f"{decoded}", end='', flush=True)
             if isin(next_token, stop).any():
