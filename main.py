@@ -72,6 +72,7 @@ def main(input: str, weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath("1B-Inst
         logits, kvcache, _, _ = xfmr(xfmr_weights, model_params, tokens, cur_pos, freqs_cis[:seqlen], kvcache, attn_mask=attn_mask)
         next_token = mx.argmax(logits[:, -1], axis=-1, keepdims=True).astype(mx.int32)
         gen_tokens = next_token
+        mx.eval(logits, next_token, gen_tokens)
         rich.print(f"[{COLORS['lelv']}]{tokenizer.decode([next_token.item()])}[/]", end='', flush=True)
         cur_pos = seqlen
         stop = mx.array([128001, 128008, 128009])
@@ -91,6 +92,7 @@ def main(input: str, weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath("1B-Inst
                 print(f"{decoded}", end='', flush=True)
             if isin(next_token, stop).any():
                 break
+            mx.eval(logits, next_token, gen_tokens)
 
     prompt = PROMPT_TEMPLATE.format(user_input=input)
     print(prompt)

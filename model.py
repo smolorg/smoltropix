@@ -18,7 +18,7 @@ DEFAULT_MAX_VALUE = -0.7 * float32_max
 
 
 @mx.compile
-def rms_norm(x: mx.array, w: mx.array, eps: float = 1e-10) -> mx.array:
+def rms_norm(x: mx.array, w: mx.array, eps: float = 1e-7) -> mx.array:
     return mx.fast.rms_norm(x, w, eps)
 
 
@@ -81,5 +81,6 @@ def xfmr(xfmr_weights: XfmrWeights, model_params: ModelParams, tokens: mx.array,
         attn_stats = attn_stats.update(scores[:, :, -1, :], i)
         h = h + h_attn
         h = h + feed_forward(rms_norm(h, xfmr_weights.layer_weights[i].ffn_norm), xfmr_weights.layer_weights[i])
+        mx.eval(h, norm_x, h_attn)
     logits = mx.matmul(rms_norm(h, xfmr_weights.norm), xfmr_weights.output.T)
     return logits, kvcache, scores, attn_stats
