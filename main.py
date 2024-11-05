@@ -8,7 +8,7 @@ import tyro
 
 from config import LLAMA_1B_PARAMS, ModelParams
 from kvcache import KVCache
-from model import xfmr, DEFAULT_MAX_VALUE
+from model import xfmr
 from sampler import SamplerConfig, sample
 from prompts import PROMPT_TEMPLATE
 from sampler import sample, isin
@@ -80,9 +80,6 @@ def main(input: str, weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath("1B-Inst
         while cur_pos < 8192:
             cur_pos += 1
             logits, kvcache, scores, stats = xfmr(xfmr_weights, model_params, next_token, cur_pos, freqs_cis[cur_pos:cur_pos+1], kvcache)
-            mask = (mx.arange(scores.shape[-1]) >= cur_pos)
-            mask = mask.reshape(1, 1, 1, -1)
-            scores = mx.where(mask, DEFAULT_MAX_VALUE, scores)
             next_token, color, metrics = sample(gen_tokens, logits, scores, cfg=sampler_cfg)
             gen_tokens = mx.concatenate((gen_tokens, next_token))
             decoded = tokenizer.decode(next_token.tolist()[0])
